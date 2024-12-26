@@ -1,5 +1,6 @@
 // ==UserScript==
 // @name         Clash Connection Monitor
+// @license      https://github.com/rubbit233/Clash-Connection-Monitor
 // @namespace    https://github.com/rubbit233/Clash-Connection-Monitor(fangyuan99随手发给我的代码，我改了改)
 // @version      0.1
 // @description  优雅地显示当前网页的Clash连接信息
