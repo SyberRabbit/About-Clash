@@ -13,8 +13,10 @@
   ("use strict");
   // Clash API 配置
   const CLASH_API = {
+    // 外部控制器监听地址
     BASE_URL: "http://127.0.0.1:9097",
-    SECRET: "zcywasd000",
+    // API访问密钥
+    SECRET: "",
   };
   // 创建样式
   const style = document.createElement("style");
