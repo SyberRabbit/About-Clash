@@ -4,4 +4,4 @@
 
 [原帖网址](https://linux.do/t/topic/314189)
 # 使用方法
-### 打开油猴脚本插件，
+[一键安装](https://greasyfork.org/zh-CN/scripts/521866-clash-connection-monitor)，但需要稍微改改代码
