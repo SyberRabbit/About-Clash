@@ -1,3 +1,3 @@
-# Clash是什么，能吃吗
-不同分支，有不同内容
-![图片](https://github.com/user-attachments/assets/15234339-0346-4507-9092-ca4abaee8a3d)
+# 网页脚本
+在油猴脚本插件中，新建一个脚本
+将[JS内容](https://raw.githubusercontent.com/SyberRabbit/About-Clash/refs/heads/clash-flow-status/My-Tampermonkey.js)粘贴到新建脚本中，修改其中的**外部控制器监听地址**以及**API访问密钥**，即可
