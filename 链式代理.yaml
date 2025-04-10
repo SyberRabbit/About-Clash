@@ -1,5 +1,5 @@
 # 需要配合这个来使用
-# https://raw.githubusercontent.com/SyberRabbit/ClashConfig/refs/heads/main/%E9%85%8D%E5%90%88JS%E8%84%9A%E6%9C%AC%E6%9D%A5%E9%93%BE%E5%BC%8F%E4%BB%A3%E7%90%86
+# https://raw.githubusercontent.com/SyberRabbit/About-Clash/refs/heads/%E9%80%9A%E7%94%A8%E6%9C%AC%E5%9C%B0Ymal%E9%85%8D%E7%BD%AE/%E9%85%8D%E5%90%88JS%E8%84%9A%E6%9C%AC%E6%9D%A5%E9%93%BE%E5%BC%8F%E4%BB%A3%E7%90%86
 mode: rule
 log-level: info
 unified-delay: true
