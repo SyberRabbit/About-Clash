@@ -1,4 +1,4 @@
-# 网页脚本
+# 网页展示Clash对当前网址的分流状态和信息
 在油猴脚本插件中，新建一个脚本
 
 将[JS内容](https://raw.githubusercontent.com/SyberRabbit/About-Clash/refs/heads/clash-flow-status/My-Tampermonkey.js)粘贴到新建脚本中
