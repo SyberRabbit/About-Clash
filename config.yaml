@@ -1,4 +1,7 @@
 mode: rule
+mixed-port: 7897
+socks-port: 7898
+port: 7899
 log-level: info
 unified-delay: true
 dns:
@@ -21,16 +24,31 @@ dns:
 profile:
   store-selected: true
 
-# 自己加自己的proxies，不会弄的别管了
-# proxies:
+proxies:
+- name: 自购香港 |链式
+  type: ss
+  server: 11111
+  port: 11111
+  udp: true
+  cipher: 1111
+  password: 11111
+  dialer-proxy: "链式中间节点"
+- name: "Claude美国家宽 |链式"
+  type: socks5
+  server: 1111
+  port: 1111
+  udp: true
+  username: 1111
+  password: 11111
+  dialer-proxy: "链式中间节点"
 
-
+# 备用机场
 proxy-providers:
   # 樱花猫机场-链式代理
   Sakuracat-Chain:
     type: http
-    url: "这里填入机场订阅链接"
-    path: ./proxy_providers/Sakuracat.yaml
+    url: "1111111111111111111111111"
+    path: ./proxy_providers/Sakuracat-Chain.yaml
     interval: 3600
     proxy: 手动选择兜底国家
     size-limit: 0
@@ -55,12 +73,43 @@ proxy-providers:
       skip-cert-verify: false
       dialer-proxy: "链式中间节点"
       ip-version: ipv4-prefer
-      additional-prefix: "链式|"
-      additional-suffix: "|樱花猫"
+      additional-prefix: "樱花猫| "
+      additional-suffix: " |链式"
+  # Linux猫猫机场-链式代理
+  LinuxCat-Chain:
+    type: http
+    url: "111111111111111111111111111"
+    path: ./proxy_providers/LinuxCat-Chain.yaml
+    interval: 3600
+    proxy: 手动选择兜底国家
+    size-limit: 0
+    header:
+      User-Agent:
+      - "clash-verge/v2.2.3"
+    # 没用
+    health-check:
+      enable: false
+      url: https://www.gstatic.com/generate_204
+      interval: 300
+      timeout: 3000
+      lazy: true
+      expected-status: 204
+    override:
+      tfo: false
+      mptcp: false
+      udp: true
+      udp-over-tcp: false
+      down: "50 Mbps"
+      up: "10 Mbps"
+      skip-cert-verify: false
+      dialer-proxy: "链式中间节点"
+      ip-version: ipv4-prefer
+      additional-prefix: "Linux猫猫| "
+      additional-suffix: " |链式"
   # 樱花猫机场-无链式代理
   Sakuracat:
     type: http
-    url: "这里填入机场订阅链接"
+    url: "https://sakuracat1203.xn--3iq226gfdb94q.com/api/v1/client/subscribe?token=de9949456584c8a4c1b6a39ada647739"
     path: ./proxy_providers/Sakuracat.yaml
     interval: 3600
     proxy: 手动选择兜底国家
@@ -84,11 +133,11 @@ proxy-providers:
       up: "10 Mbps"
       skip-cert-verify: false
       ip-version: ipv4-prefer
-      additional-prefix: "无链|"
-      additional-suffix: "|樱花猫"
-
+      additional-prefix: "樱花猫| "
+      additional-suffix: " |无链"
+      
 proxy-groups:
-  # 全局主控组
+  # 通用主控组
   - name: "手动选择兜底国家"
     type: select
     proxies:
@@ -112,39 +161,37 @@ proxy-groups:
       - "新加坡-节点组"
       - "韩国-节点组"
       - "美国-节点组"
-  # 链式代理-终节点组
+  # 链式终节点-通用
   - name: "链式代理-通用"
     type: select
     include-all: true
-    filter: "^链式.*"
-  - name: "链式代理-美国"
+    filter: ".*链式$"
+    # 规则分流组
+  - name: "GPT-节点组"
     type: select
     include-all: true
-    filter: "^链式.*"
+    filter: ".*链式$"
+  - name: "Claude-节点组"
+    type: select
+    include-all: true
+    filter: ".*链式$"
+  - name: "Telegram-节点组"
+    type: select
+    include-all: true
+    filter: ".*链式$"
   # 全部节点(用来看的，几乎不用)
   - name: "全部节点"
     type: select
     include-all: true
-  # 规则分流组
-  - name: "GPT-节点组"
-    type: select
-    proxies:
-      - "链式代理-美国"
-    url: "https://chatgpt.com/generate_204"
-  - name: "Claude-节点组"
-    type: select
-    proxies:
-      - "链式代理-美国"
-    url: "https://claude.ai/generate_204"
-  # 境外地区、国家组
+  # 大陆外地区、国家组
   - name: "港台日新韩-节点组"
-    type: fallback
+    type: url-test
     include-all: true
     url: "http://www.gstatic.com/generate_204"
     interval: 180
     tolerance: 50
     timeout: 1000
-    filter: ^(?=无链\|)(?!.*游戏)(?!.*25x).*(香港|台湾|新加坡|日本|韩国)
+    filter: ^(?!.*游戏)(?!.*25x)(?=.*(香港|台湾|新加坡|日本|韩国)).*\|无链$
   - name: "香港-节点组"
     type: fallback
     include-all: true
@@ -152,7 +199,7 @@ proxy-groups:
     interval: 120
     tolerance: 30
     timeout: 800
-    filter: ^(?=无链\|)(?!.*游戏).*香港
+    filter: ^(?!.*游戏)(?=.*香港).*?\|无链$
   - name: "台湾-节点组"
     type: fallback
     include-all: true
@@ -160,7 +207,7 @@ proxy-groups:
     interval: 180
     tolerance: 40
     timeout: 1000
-    filter: ^(?=无链\|)(?!.*游戏).*台湾
+    filter: ^(?!.*游戏)(?=.*台湾).*?\|无链$
   - name: "日本-节点组"
     type: fallback
     include-all: true
@@ -168,7 +215,7 @@ proxy-groups:
     interval: 240
     tolerance: 50
     timeout: 1200
-    filter: ^(?=无链\|)(?!.*游戏)(?!.*25x).*日本
+    filter: ^(?!.*游戏)(?!.*25x)(?=.*日本).*?\|无链$
   - name: "新加坡-节点组"
     type: fallback
     include-all: true
@@ -176,7 +223,7 @@ proxy-groups:
     interval: 240
     tolerance: 50
     timeout: 1200
-    filter: ^(?=无链\|)(?!.*游戏).*新加坡
+    filter: ^(?!.*游戏)(?=.*新加坡).*?\|无链$
   - name: "韩国-节点组"
     type: fallback
     include-all: true
@@ -184,7 +231,7 @@ proxy-groups:
     interval: 240
     tolerance: 50
     timeout: 1300
-    filter: ^(?=无链\|)(?!.*游戏).*韩国
+    filter: ^(?!.*游戏)(?=.*韩国).*?\|无链$
   - name: "美国-节点组"
     type: fallback
     include-all: true
@@ -192,20 +239,31 @@ proxy-groups:
     interval: 300
     tolerance: 80
     timeout: 1800
-    filter: ^(?=无链\|)(?!.*游戏).*美国
-
+    filter: ^(?!.*游戏)(?=.*美国).*?\|无链$
+  # 兜底Match组
+  - name: "兜底组"
+    type: select
+    proxies:
+      - DIRECT
+      - "手动选择兜底国家"
 rule-providers:
   Claude:
     type: http
-    behavior: domain
-    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Claude/Claude.yaml"
     path: ./rules/Claude.yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Claude/Claude.yaml"
     interval: 86400
+    proxy: 手动选择兜底国家
+    behavior: classical
+    format: yaml
 
 rules:
   # 特殊自定义域名
   - DOMAIN,cvb.9563067.xyz,手动选择兜底国家
   - DOMAIN,cvw.9563067.xyz,手动选择兜底国家
+  - DOMAIN,gistcat.9563067.xyz,手动选择兜底国家
+  - DOMAIN-SUFFIX,xn--ngstr-lra8j.com,手动选择兜底国家
+  - DOMAIN-SUFFIX,googleapis.cn,手动选择兜底国家
+  - PROCESS-NAME,com.microsoft.outlooklite,手动选择兜底国家
   - DOMAIN-SUFFIX,9563067.xyz,DIRECT
   - DOMAIN-KEYWORD,epic,DIRECT
   - DOMAIN-REGEX,^dl.*mypikpak\.com$,DIRECT
@@ -213,18 +271,26 @@ rules:
   # 规则集
   - GEOSITE,category-games@CN,DIRECT
   - GEOSITE,openai,GPT-节点组
+  - GEOSITE,telegram,Telegram-节点组
   - RULE-SET,Claude,Claude-节点组
+  # 进程匹配(Windows)
+  - PROCESS-NAME,Telegram.exe,Telegram-节点组
+  - PROCESS-NAME,steam.exe,手动选择兜底国家
+  - PROCESS-NAME,claude.exe,Claude-节点组
+  # 进程匹配(Android)
+  - PROCESS-NAME,com.valvesoftware.android.steam.community,手动选择兜底国家
+  - PROCESS-NAME,com.github.android,手动选择兜底国家
+  - PROCESS-NAME,com.openai.chatgpt,GPT-节点组
+  - PROCESS-NAME,com.anthropic.claude,Claude-节点组
+    # 谷歌商店包名
+  - PROCESS-NAME,com.android.vending,手动选择兜底国家
+  - PROCESS-NAME,org.telegram.messenger,Telegram-节点组
+  - PROCESS-NAME,com.twitter.android,手动选择兜底国家
   # 区域规则
   - GEOSITE,geolocation-!cn,手动选择兜底国家
   - GEOSITE,CN,DIRECT
   - GEOIP,LAN,DIRECT
   - GEOIP,CN,DIRECT
-  # 进程匹配(Windows)
+  # 兜底(默认直连)
   - PROCESS-NAME,firefox.exe,手动选择兜底国家
-  - PROCESS-NAME,Telegram.exe,手动选择兜底国家
-  # 进程匹配(Android)
-  - PROCESS-NAME,com.android.vending,手动选择兜底国家
-  - PROCESS-NAME,org.telegram.messenger,手动选择兜底国家
-  - PROCESS-NAME,com.twitter.android,手动选择兜底国家
-  # 默认兜底(直连)
-  - MATCH,DIRECT
+  - MATCH,兜底组
