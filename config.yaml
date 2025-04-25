@@ -258,9 +258,6 @@ rule-providers:
 
 rules:
   # 特殊自定义域名
-  - DOMAIN,cvb.9563067.xyz,手动选择兜底国家
-  - DOMAIN,cvw.9563067.xyz,手动选择兜底国家
-  - DOMAIN,gistcat.9563067.xyz,手动选择兜底国家
   - DOMAIN-SUFFIX,xn--ngstr-lra8j.com,手动选择兜底国家
   - DOMAIN-SUFFIX,googleapis.cn,手动选择兜底国家
   - PROCESS-NAME,com.microsoft.outlooklite,手动选择兜底国家
