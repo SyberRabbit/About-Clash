@@ -261,7 +261,6 @@ rules:
   - DOMAIN-SUFFIX,xn--ngstr-lra8j.com,手动选择兜底国家
   - DOMAIN-SUFFIX,googleapis.cn,手动选择兜底国家
   - PROCESS-NAME,com.microsoft.outlooklite,手动选择兜底国家
-  - DOMAIN-SUFFIX,9563067.xyz,DIRECT
   - DOMAIN-KEYWORD,epic,DIRECT
   - DOMAIN-REGEX,^dl.*mypikpak\.com$,DIRECT
   - DOMAIN,zeze.teracloud.jp,DIRECT
