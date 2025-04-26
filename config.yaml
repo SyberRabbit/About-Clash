@@ -109,7 +109,7 @@ proxy-providers:
   # 樱花猫机场-无链式代理
   Sakuracat:
     type: http
-    url: "https://sakuracat1203.xn--3iq226gfdb94q.com/api/v1/client/subscribe?token=de9949456584c8a4c1b6a39ada647739"
+    url: "11111111111"
     path: ./proxy_providers/Sakuracat.yaml
     interval: 3600
     proxy: 手动选择兜底国家
