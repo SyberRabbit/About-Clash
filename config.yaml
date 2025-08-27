@@ -27,7 +27,7 @@ profile:
   store-selected: true
 
 proxies:
-
+- {name: "自购美国 |链式", type: ss, server: 1111111111, port: 111111, cipher: 11111, password: "1111111111=", udp: true, dialer-proxy: "链式中间节点"}
 
 proxy-providers:
 # 备用机场-被偷没了
