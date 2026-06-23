@@ -32,6 +32,7 @@ dns:
     # 4. 要是懒得来回切换，那么nameserver只用信任DOH得了
   direct-nameserver:
     - system
+    - https://223.5.5.5/dns-query
   proxy-server-nameserver:
     - https://*/dns-query
     # 使用信任的DOH
