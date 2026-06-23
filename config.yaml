@@ -6,7 +6,7 @@ port: 7899
 allow-lan: true
 bind-address: 0.0.0.0
 log-level: info
-unified-delay: true
+unified-delay: false
 ipv6: false
 # 试用
 #tcp-concurrent: true
@@ -23,29 +23,51 @@ dns:
     - system
     - 223.6.6.6
   nameserver:
-    - 这里写可信任的doh
+    - system
+    - https://223.5.5.5/dns-query
+    # 【国内分流与隐私闸门配置说明】
+    # 1. 国内加速：nameserver 锁死系统和阿里本地 DoH，确保国内大厂（如B站）即便使用GEO漏网的便宜 CDN 域名，也能物理直连、利用好CDN加速来秒速解析。
+    # 2. 动态防漏：日常状态下“兜底组”必须选【DIRECT】，以兼容大厂野生 CDN。
+    # 3. 隐私沙箱：访问海外高隐私/特殊冷门网站时，手动将“兜底组”切为【代理】，彻底封死 ISP 偷窥可能。看毕切回。
+    # 4. 要是懒得来回切换，那么nameserver只用信任DOH得了
   direct-nameserver:
     - system
   proxy-server-nameserver:
-    - 这里写可信任的doh
+    - https://*/dns-query
+    # 使用信任的DOH
   use-system-hosts: true
 profile:
   store-selected: true
 
 proxies:
-- {name: "example", type: ss, server: example.com, port: 11111, cipher: aes-128-gcm, password: "dwadafefesfedaeda=", udp: false, dialer-proxy: "链式中间节点"}
+# 自建示例模板（已脱敏）
+- name: "1 美国Los |自建"
+  type: vless
+  server: *.loc.cc
+  port: 52783
+  uuid: *-*-*-*-*
+  network: tcp
+  tls: true
+  udp: true
+  flow: xtls-rprx-vision
+  servername: www.apple.com
+  client-fingerprint: chrome
+  packet-encoding: xudp
+  reality-opts:
+    public-key: *
+    short-id: *
+
 proxy-providers:
-  example-Chain:
+  # 机场订阅示例模板（已脱敏）
+  peiqian-Chain:
     type: http
-    url: "机场订阅"
-    path: ./proxy_providers/example-Chain.yaml
+    url: "https://*/api/v1/pq/*"
+    path: ./proxy_providers/peiqian-Chain.yaml
     interval: 3600
-    # proxy: 1自购香港 |无链
     size-limit: 0
     header:
       User-Agent:
       - "clash-verge/v2.2.3"
-    # 貌似没用
     health-check:
       enable: false
       url: https://www.gstatic.com/generate_204
@@ -61,27 +83,28 @@ proxy-providers:
       skip-cert-verify: false
       dialer-proxy: "链式中间节点"
       ip-version: ipv4-prefer
-      additional-prefix: "example| "
+      additional-prefix: "peiqian| "
       additional-suffix: " |链式"
+
 proxy-groups:
   # 通用主控组
   - name: "手动选择兜底国家"
     type: select
-    proxies: ["中转-节点组", "链式代理-通用", "港台日新韩-节点组", "香港-节点组", "台湾-节点组", "日本-节点组", "新加坡-节点组", "韩国-节点组", "美国-节点组", "全部节点"]
+    proxies: ["自建-节点组", "链式代理-通用", "港台日新韩-节点组", "香港-节点组", "台湾-节点组", "日本-节点组", "新加坡-节点组", "韩国-节点组", "美国-节点组", "全部节点"]
   # 链式代理-中间节点组
   - name: "链式中间节点"
     type: select
-    proxies: ["中转-节点组", "港台日新韩-节点组", "香港-节点组", "台湾-节点组", "日本-节点组", "新加坡-节点组", "韩国-节点组", "美国-节点组"]
+    proxies: ["自建-节点组", "港台日新韩-节点组", "香港-节点组", "台湾-节点组", "日本-节点组", "新加坡-节点组", "韩国-节点组", "美国-节点组"]
   # 链式终节点-通用
   - name: "链式代理-通用"
     type: select
     include-all: true
     filter: ".*链式$"
-  # 中转-节点组
-  - name: "中转-节点组"
+  # 自建-节点组
+  - name: "自建-节点组"
     type: select
     include-all: true
-    filter: ".*中转.*"
+    filter: ".*自建.*"
   # 规则分流组
   - name: "GPT-节点组"
     type: select
@@ -107,6 +130,11 @@ proxy-groups:
     type: select
     include-all: true
     filter: ".*链式$"
+  - name: "PSN-节点组"
+    type: select
+    include-all: true
+    filter: ".*链式$"
+    proxies: ["链式代理-通用", "香港-节点组", "手动选择兜底国家", "美国-节点组", "日本-节点组"]
   # 全部节点(用来看的，几乎不用)
   - name: "全部节点"
     type: select
@@ -193,7 +221,7 @@ rules:
   - DOMAIN-KEYWORD,bing,DIRECT
   - DOMAIN-KEYWORD,sohu,DIRECT
   - DOMAIN-REGEX,^dl.*mypikpak\.com$,DIRECT
-  - DOMAIN-SUFFIX,googleapis.cn,手动选择兜底国家 # 在中国备案过的谷歌域名，下面geolocation-!cn中并没有它，走直连会导致Play下载不正常
+  - DOMAIN-SUFFIX,googleapis.cn,手动选择兜底国家 
   - DOMAIN,zeze.teracloud.jp,DIRECT
   - DOMAIN-SUFFIX,shanyu520.com,DIRECT
   - DOMAIN-SUFFIX,devsleep.com,DIRECT
@@ -204,40 +232,41 @@ rules:
   - GEOSITE,google-gemini,Gemini-节点组
   - GEOSITE,telegram,Telegram-节点组
   - GEOSITE,spotify,Spotify-节点组
+  - GEOSITE,playstation,PSN-节点组
+  - GEOSITE,sony,PSN-节点组
   - RULE-SET,Claude,Claude-节点组
   # 进程匹配(Windows)
-  - PROCESS-NAME,Telegram.exe,Telegram-节点组  # Telegram 桌面客户端
-  - PROCESS-NAME,steam.exe,手动选择兜底国家  # Steam 游戏平台
-  - PROCESS-NAME,claude.exe,Claude-节点组  # Claude AI客户端
-  - PROCESS-NAME,VALORANT.exe,全部节点  # 瓦洛兰特游戏主程序
-  - PROCESS-NAME,VALORANT-Win64-Shipping.exe,全部节点  # 瓦洛兰特游戏运行时
-  - PROCESS-NAME,RiotClientServices.exe,全部节点  # 拳头游戏客户端服务
-  - PROCESS-NAME,AimLab.exe,全部节点  # AimLab练枪软件主程序
-  - PROCESS-NAME,AimLabExe.exe,全部节点  # AimLab练枪软件执行文件
+  - PROCESS-NAME,Telegram.exe,Telegram-节点组  
+  - PROCESS-NAME,steam.exe,手动选择兜底国家  
+  - PROCESS-NAME,claude.exe,Claude-节点组  
+  - PROCESS-NAME,VALORANT.exe,全部节点  
+  - PROCESS-NAME,VALORANT-Win64-Shipping.exe,全部节点  
+  - PROCESS-NAME,RiotClientServices.exe,全部节点  
+  - PROCESS-NAME,AimLab.exe,全部节点  
+  - PROCESS-NAME,AimLabExe.exe,全部节点  
   # 进程匹配(Android)
-  - PROCESS-NAME,mark.via,手动选择兜底国家  # VIA浏览器
-  - PROCESS-NAME,mark.via.gp,手动选择兜底国家  # VIA浏览器
-  - PROCESS-NAME,com.spotify.music,Spotify-节点组  # Spotify
-  - PROCESS-NAME,com.microsoft.outlooklite,手动选择兜底国家  # Outlook Lite
-  - PROCESS-NAME,com.valvesoftware.android.steam.community,手动选择兜底国家  # Steam移动版
-  - PROCESS-NAME,com.github.android,手动选择兜底国家  # GitHub移动版
-  - PROCESS-NAME,com.openai.chatgpt,GPT-节点组  # ChatGPT官方应用
-  - PROCESS-NAME,com.anthropic.claude,Claude-节点组  # Claude AI官方应用
-  - PROCESS-NAME,org.telegram.messenger,Telegram-节点组  # Telegram官方
-  - PROCESS-NAME,org.thunderdog.challegram,Telegram-节点组  # Telegram X
-  - PROCESS-NAME,com.twitter.android,手动选择兜底国家  # Twitter/X
-  - PROCESS-NAME,com.android.vending,手动选择兜底国家  # Google Play商店
+  - PROCESS-NAME,mark.via,手动选择兜底国家  
+  - PROCESS-NAME,mark.via.gp,手动选择兜底国家  
+  - PROCESS-NAME,com.spotify.music,Spotify-节点组  
+  - PROCESS-NAME,com.microsoft.outlooklite,手动选择兜底国家  
+  - PROCESS-NAME,com.valvesoftware.android.steam.community,手动选择兜底国家  
+  - PROCESS-NAME,com.github.android,手动选择兜底国家  
+  - PROCESS-NAME,com.openai.chatgpt,GPT-节点组  
+  - PROCESS-NAME,com.anthropic.claude,Claude-节点组  
+  - PROCESS-NAME,org.telegram.messenger,Telegram-节点组  
+  - PROCESS-NAME,org.thunderdog.challegram,Telegram-节点组  
+  - PROCESS-NAME,com.twitter.android,手动选择兜底国家  
+  - PROCESS-NAME,com.android.vending,手动选择兜底国家  
   # 国家规则
   - GEOSITE,geolocation-!cn,手动选择兜底国家
   - GEOSITE,CN,DIRECT
   - GEOIP,LAN,DIRECT
   - GEOIP,CN,DIRECT
-  # 本机进程兜底(本机中只有以下进程，保证不DNS泄露)
-  - PROCESS-NAME,Proxifier.exe,手动选择兜底国家 # Proxifier
-  - PROCESS-NAME,firefox.exe,手动选择兜底国家  # Firefox浏览器
-  - PROCESS-NAME-REGEX,(?i)Chrome,手动选择兜底国家 # Chrome浏览器
-  - PROCESS-NAME-REGEX,(?i)^(Safari|com\.apple\.WebKit),手动选择兜底国家 # MAC的Safari浏览器+莫名其妙的WebKit
-  # 局域网客户端兜底(当局域网设备代理指向本机时，只有这样兜底，才能保证不DNS泄露)(这个最特殊，分流的是来源，其他Rules分流的是去向)
+  # 本机进程兜底
+  - PROCESS-NAME,firefox.exe,手动选择兜底国家  
+  - PROCESS-NAME-REGEX,(?i)Chrome,手动选择兜底国家 
+  - PROCESS-NAME-REGEX,(?i)^(Safari|com\.apple\.WebKit),手动选择兜底国家 
+  # 局域网客户端兜底
   - SRC-IP-CIDR,10.2.0.0/16,手动选择兜底国家
   - SRC-IP-CIDR,192.168.0.0/16,手动选择兜底国家
   # 最终兜底
